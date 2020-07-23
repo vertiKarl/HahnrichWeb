@@ -10,6 +10,9 @@
   "license": "GNU General Public License v3.0",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "follow-redirects": "^1.12.1",
+    "request": "^2.88.2",
+    "tmi.js": "^1.5.0",
     "ws": "^7.3.1"
   }
 }
