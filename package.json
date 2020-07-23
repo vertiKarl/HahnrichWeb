@@ -1,0 +1,11 @@
+{
+  "name": "hahnrichweb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "vertiKarl",
+  "license": "GNU General Public License v3.0"
+}
