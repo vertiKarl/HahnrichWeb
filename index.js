@@ -6,9 +6,13 @@ Client.init()
 
 shell.addListener("data", function(d) {
   const data = d.toString().trim()
-  try {
-    Client.commands.get(data).execute()
-  } catch(e) {
-    console.log(e)
+  if(typeof Client.commands.get(data) !== "undefined") {
+    try {
+      console.log(Client.commands.get(data).execute())
+    } catch(e) {
+      console.log(e)
+    }
+  } else {
+    console.log('ERROR: No command called '+data+' found.')
   }
 })

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Test</title>
+    <link rel="stylesheet" href="https://alleshusos.de/stylesheets/styles.css">
+    <link rel="icon" href="https://alleshusos.de/images/joel.png">
+    <script>
+      let connection;
+      window.onload = function () {
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+        const input = document.getElementById('client_message');
+        input.addEventListener("keyup", function(event) {
+          if (event.keyCode === 13) {
+            sendMessage()
+          }
+        })
+
+        connection = new WebSocket('ws://localhost:8080/')
+        connection.onopen = function() {
+          console.log('connected!', connection)
+          status.innerHTML = "connected!"
+        }
+        connection.onmessage = function(msg) {
+          console.log(msg)
+          messages.innerHTML = msg.data
+        }
+        connection.onclose = function() {
+          console.log('disconnected!')
+          status.innerHTML = "disconnected!"
+        }
+        connection.onerror = function(e) {
+          console.log(e)
+          status.innerHTML = "error! ("+e+")"
+        }
+      }
+      function sendMessage() {
+        console.log('trying')
+        const message = document.getElementById('client_message')
+        connection.send(message.value)
+      }
+    </script>
+</head>
+<body>
+    <div class="fouronefour">
+        <h1>WebSocketTest</h1>
+        <p id="status"></p>
+        <input id="client_message" type="text"></input>
+        <p id="messages"></p>
+        <img src="https://alleshusos.de/images/calito.png">
+        <br>
+    </div>
+</body>
+</html>
