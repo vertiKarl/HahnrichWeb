@@ -15,7 +15,8 @@ class HahnrichClient {
     this.getPlugins()
     // Executing plugins
     for(const [key, plugin] of this.plugins.entries()) {
-      console.log(plugin.execute(this))
+      HahnrichClient[plugin.name] = plugin.execute(this)
+      console.log(plugin.name+': '+HahnrichClient[plugin.name])
     }
     // WebSocketServer
     const wsServer = new WebSocket.Server({ port: 8080 });
