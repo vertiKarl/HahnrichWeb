@@ -81,9 +81,11 @@ module.exports = {
             } else {
               return
             }
-            if(typeof Hahnrich.commands.get(msg[0]) !== "undefined") {
+            if(typeof Hahnrich.commands.get(msg[0]) !== "undefined" && !Hahnrich[msg[0]]) {
               try {
-                client.whisper(user['display-name'], Hahnrich.commands.get(msg[0]).execute(msg))
+                let args = msg
+                args.unshift(Hahnrich)
+                client.whisper(user['display-name'], Hahnrich.commands.get(msg[1]).execute.apply(null, args))
               } catch(e) {
                 console.log(e)
               }
@@ -102,9 +104,11 @@ module.exports = {
             } else {
               return
             }
-            if(typeof Hahnrich.commands.get(msg[0]) !== "undefined") {
+            if(typeof Hahnrich.commands.get(msg[0]) !== "undefined" && !Hahnrich[msg[0]]) {
               try {
-                client.action(channel, Hahnrich.commands.get(msg[0]).execute(msg))
+                let args = msg
+                args.unshift(Hahnrich)
+                client.action(channel, Hahnrich.commands.get(msg[1]).execute.apply(null, args))
               } catch(e) {
                 console.log(e)
               }

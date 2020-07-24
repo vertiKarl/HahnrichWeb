@@ -1,6 +1,9 @@
 const http = require('http');
 const F = require('fs');
 const WebSocket = require('ws');
+const express = require('express');
+const path = require('path');
+const app = express();
 class HahnrichClient {
 
   constructor(Port) {
@@ -23,12 +26,20 @@ class HahnrichClient {
     wsServer.on("connection", (ws) => {
       ws.on('message', (msg) => {
         msg = msg.split(' ')
-        if(typeof this.commands.get(msg[0]) !== "undefined") {
+        console.log(this.commands.get(msg[0]))
+        // check if vanilla hahnrich command
+        if(typeof this.commands.get(msg[0]) !== "undefined" && !this[msg[0]]) {
           try {
-            ws.send(this.commands.get(msg[0]).execute())
+            console.log(msg)
+            let args = msg
+            args.unshift(this)
+            console.log(msg)
+            ws.send(this.commands.get(msg[1]).execute.apply(null, args))
+            //ws.send(this.commands.get(msg[0]).execute(this, msg))
           } catch(e) {
             console.log(e)
           }
+        // check if plugin command
         } else if(Object.keys(this).includes(msg[0]) && typeof this[msg[0]].commands.get(msg[1]) !== "undefined") {
           let args = msg.slice(2)
           args.unshift(this[msg[0]].client)
@@ -36,12 +47,16 @@ class HahnrichClient {
           this[msg[0]].commands.get(msg[1]).execute.apply(null, args)
           ws.send(`Trying to run ${msg[0]+' '+msg[1]}`)
         } else {
-          ws.send('ERROR: No command called '+msg+' found.')
+          ws.send('ERROR: No command called '+msg[0]+' found.')
         }
       })
     })
     // HTTPServer
-    let httpServer = http.createServer()
+    app.get('/', (req, res) => {
+      res.sendFile(path.join(__dirname, '/express/index.html'))
+    })
+    app.use(express.static(path.join(__dirname, 'express')))
+    let httpServer = http.createServer(app)
     httpServer.listen(this.Port, () => {
       console.log('http server running on http://localhost:'+this.Port)
     })
