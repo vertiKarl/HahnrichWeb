@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Test</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script>
+      let connection;
+      function createChatMessage(user, message) {
+        p_element = document.createElement('p')
+        let current_date = new Date()
+        let current_time = String(current_date.getHours())+':'+String(current_date.getMinutes())+':'+String(current_date.getSeconds())+' '
+        p_element.innerHTML = String(current_time) + String(user) + ': ' +message
+        document.getElementById('chat').appendChild(p_element)
+      }
+      window.onload = function () {
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+        const input = document.getElementById('client_message');
+        input.addEventListener("keyup", function(event) {
+          if (event.keyCode === 13) {
+            sendMessage()
+          }
+        })
+
+        connection = new WebSocket('ws://localhost:8080/')
+        connection.onopen = function() {
+          console.log('connected!', connection)
+          createChatMessage('Hahnrich', "connected!")
+        }
+        connection.onmessage = function(msg) {
+          console.log(msg)
+          createChatMessage('Hahnrich', msg.data)
+        }
+        connection.onclose = function() {
+          console.log('disconnected!')
+          createChatMessage('Hahnrich', "disconnected!")
+          window.onload()
+        }
+        connection.onerror = function(e) {
+          console.log(e)
+          createChatMessage('Hahnrich', "error! ("+e+")")
+        }
+      }
+      function sendMessage() {
+        const message = document.getElementById('client_message')
+        createChatMessage('You', message.value)
+        connection.send(message.value)
+        message.value = ''
+      }
+    </script>
+</head>
+<body>
+    <div class="main">
+        <h1>Hahnrich Control Panel</h1>
+        <p id="status"></p>
+        <div id="chat">
+        </div>
+        <input id="client_message" type="text"></input>
+        <br>
+    </div>
+</body>
+</html>
