@@ -22,12 +22,19 @@ class HahnrichClient {
     const wsServer = new WebSocket.Server({ port: 8080 });
     wsServer.on("connection", (ws) => {
       ws.on('message', (msg) => {
-        if(typeof this.commands.get(msg) !== "undefined") {
+        msg = msg.split(' ')
+        if(typeof this.commands.get(msg[0]) !== "undefined") {
           try {
-            ws.send(this.commands.get(msg).execute())
+            ws.send(this.commands.get(msg[0]).execute())
           } catch(e) {
             console.log(e)
           }
+        } else if(Object.keys(this).includes(msg[0]) && typeof this[msg[0]].commands.get(msg[1]) !== "undefined") {
+          let args = msg.slice(2)
+          args.unshift(this[msg[0]].client)
+          args.splice(2, 0, 'CONSOLE')
+          this[msg[0]].commands.get(msg[1]).execute.apply(null, args)
+          ws.send(`Trying to run ${msg[0]+' '+msg[1]}`)
         } else {
           ws.send('ERROR: No command called '+msg+' found.')
         }
