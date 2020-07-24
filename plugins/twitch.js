@@ -205,6 +205,17 @@ module.exports = {
         console.log(channel, 'stopped hosting for', viewers)
       })
       client.connect()
+      // error handler
+      client.error = function(channel, user, id) {
+        const errors = {
+          "no_permission": client.action(channel, `${user['display-name']}, no permission!`)
+        }
+        if(errors[id]) {
+          errors[id]
+        } else {
+          console.log('ERROR: error not in errors map ('+id+')')
+        }
+      }
     }
     // if we dont have a code specified, tell the user to set a code in .env
     if(!process.env.TWITCH_Code) {
