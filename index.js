@@ -14,7 +14,7 @@ shell.addListener("data", function(d) {
       let args = data
       args.unshift(Client)
       let command = Client.commands.get(data[1]).execute.apply(null, args)
-      if(command && !command.includes('ERROR')) {
+      if(command && !command.toString().includes('ERROR')) {
         console.log(command)
       } else {
         console.error(command)

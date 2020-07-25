@@ -47,8 +47,9 @@ class HahnrichClient {
     // Loading commands and plugins from their respective folders
     this.getCommands()
     this.getPlugins()
-    // Executing plugins
+    // Plugin loop
     for(const [key, plugin] of this.plugins.entries()) {
+      // Setting up fancy console.log for plugins
       let PurePlugin = plugin.name.replace('-plugin', '')
       console[PurePlugin] = function() {
         let time = new Date()
@@ -61,6 +62,7 @@ class HahnrichClient {
         }
         cl.apply(console, log)
       }
+      // Setting up fancy console.error for plugins
       console[`${PurePlugin}error`] = function() {
         let time = new Date()
         if(!plugin.color) {
@@ -72,13 +74,13 @@ class HahnrichClient {
         }
         cl.apply(console, log)
       }
+      // Starting plugins
       HahnrichClient[plugin.name] = plugin.execute(this)
       if(HahnrichClient[plugin.name]) {
         console.log(plugin.name, 'started!')
       } else {
         console.error('ERROR: Failed starting', plugin.name)
       }
-      //console.log(plugin.name+': '+HahnrichClient[plugin.name])
     }
     // WebSocketServer
     const wsServer = new WebSocket.Server({ port: 8080 });

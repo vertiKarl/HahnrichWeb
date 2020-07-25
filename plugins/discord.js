@@ -52,24 +52,24 @@ module.exports = {
 
     client.on('message', (message) => {
       if(message.content[0] === '!' && !self(message.author) && inWhitelist(message.author.id)) {
-        command = message.content.substr(1).split(' ')
+        command = message.content.substr(1).toLowerCase().split(' ')
       } else {
         return
       }
       console.discord(message.author.username+'#'+message.author.discriminator, 'tried to run', "'"+command.join(' ')+"'")
       switch(message.channel['type']) {
         case 'dm':
-          if(typeof Hahnrich.commands.get(command[0]) !== "undefined" && !Hahnrich[command[0]]) {
+          if(typeof Hahnrich.discord.commands.get(command[0]) !== "undefined") {
+            try {
+              Hahnrich.discord.commands.get(command[0]).execute(Hahnrich, client, message)
+            } catch(e) {
+              console.discord(e)
+            }
+          } else if(typeof Hahnrich.commands.get(command[0]) !== "undefined" && !Hahnrich[command[0]]) {
             try {
               let args = command
               args.unshift(Hahnrich)
               message.reply(Hahnrich.commands.get(command[1]).execute.apply(null, args))
-            } catch(e) {
-              console.discord(e)
-            }
-          } else if(typeof Hahnrich.discord.commands.get(command[0]) !== "undefined") {
-            try {
-              Hahnrich.discord.commands.get(command[0]).execute(client, message)
             } catch(e) {
               console.discord(e)
             }
@@ -84,17 +84,17 @@ module.exports = {
           }
           break
         case 'default':
-          if(typeof Hahnrich.commands.get(command[0]) !== "undefined" && !Hahnrich[command[0]]) {
+          if(typeof Hahnrich.discord.commands.get(command[0]) !== "undefined") {
+            try {
+              Hahnrich.discord.commands.get(command[0]).execute(Hahnrich, client, message)
+            } catch(e) {
+              console.discord(e)
+            }
+          } else if(typeof Hahnrich.commands.get(command[0]) !== "undefined" && !Hahnrich[command[0]]) {
             try {
               let args = command
               args.unshift(Hahnrich)
               message.reply(Hahnrich.commands.get(command[1]).execute.apply(null, args))
-            } catch(e) {
-              console.discord(e)
-            }
-          } else if(typeof Hahnrich.discord.commands.get(command[0]) !== "undefined") {
-            try {
-              Hahnrich.discord.commands.get(command[0]).execute(client, message)
             } catch(e) {
               console.discord(e)
             }
