@@ -2,11 +2,9 @@ module.exports = {
   name: 'help',
   help: 'try help [command] to get more infos about a command!',
   execute(Hahnrich, ...msg) {
-    console.log(msg)
     if(typeof msg[1] === "undefined") {
       let commands = Hahnrich.commands
       for(plugin of Array.from(Hahnrich.plugins.keys())) {
-        console.log(`Hahnrich[${plugin.replace('-plugin', '')}]`)
         if(typeof Hahnrich[plugin.replace('-plugin', '')] !== "undefined") {
           commands.set(String(plugin.replace('-plugin', '')), Hahnrich[plugin.replace('-plugin', '')].commands)
         }
@@ -15,7 +13,6 @@ module.exports = {
     } else {
       let commands = Hahnrich.commands
       for(plugin of Array.from(Hahnrich.plugins.keys())) {
-        console.log(`Hahnrich[${plugin.replace('-plugin', '')}]`)
         if(typeof Hahnrich[plugin.replace('-plugin', '')] !== "undefined") {
           commands.set(String(plugin.replace('-plugin', '')), Hahnrich[plugin.replace('-plugin', '')].commands)
         }

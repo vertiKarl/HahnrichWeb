@@ -14,6 +14,7 @@ module.exports = {
           n++;
         }
         client.say(channel, resp)
+        return true
       } else {
         client.error(channel, user, 'no_permission')
       }

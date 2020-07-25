@@ -8,18 +8,77 @@ class HahnrichClient {
 
   constructor(Port) {
     this.Port = Port
+    this.name = 'Hahnrich'
     this.commands = new Map()
     this.plugins = new Map()
   }
 
   init() {
+    // fancy console log
+    let cl = console.log
+    console.log = function() {
+      let time = new Date()
+      let log = [`\u001b[1m\u001b[42;1m\u001b[38;5;231mS\x1b[0m [${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}]`, `[\x1b[36m${'Hahnrich'}\x1b[0m]`]
+      for(let arg in arguments) {
+        log.push(arguments[arg])
+      }
+      cl.apply( console, log)
+    }
+    // fancy console error
+    let ce = console.error
+    console.error = function() {
+      let time = new Date()
+      let error = [`\u001b[1m\u001b[41;1m\u001b[38;5;231mE\x1b[0m [${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}]`, `[\x1b[36m${'Hahnrich'}\x1b[0m]`]
+      for(let arg in arguments) {
+        error.push(arguments[arg])
+      }
+      ce.apply( console, error)
+    }
+    // fancy console debug
+    let cd = console.debug
+    console.debug = function() {
+      let time = new Date()
+      let debug = [`\u001b[1m\u001b[41;1m\u001b[38;5;231mDEBUG\x1b[0m [${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}]`, `[\x1b[36m${'Hahnrich'}\x1b[0m]`]
+      for(let arg in arguments) {
+        debug.push(arguments[arg])
+      }
+      ce.apply( console, debug)
+    }
     // Loading commands and plugins from their respective folders
     this.getCommands()
     this.getPlugins()
     // Executing plugins
     for(const [key, plugin] of this.plugins.entries()) {
+      let PurePlugin = plugin.name.replace('-plugin', '')
+      console[PurePlugin] = function() {
+        let time = new Date()
+        if(!plugin.color) {
+          plugin.color = '\x1b[36m'
+        }
+        let log = [`\u001b[1m\u001b[42;1m\u001b[38;5;231mS\x1b[0m [${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}]`, `[${plugin.color}${plugin.name}\x1b[0m]`]
+        for(let arg in arguments) {
+          log.push(arguments[arg])
+        }
+        cl.apply(console, log)
+      }
+      console[`${PurePlugin}error`] = function() {
+        let time = new Date()
+        if(!plugin.color) {
+          plugin.color = '\x1b[36m'
+        }
+        let log = [`\u001b[1m\u001b[41;1m\u001b[38;5;231mE\x1b[0m [${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}]`, `[${plugin.color}${plugin.name}\x1b[0m]`]
+        for(let arg in arguments) {
+          log.push(arguments[arg])
+        }
+        cl.apply(console, log)
+      }
       HahnrichClient[plugin.name] = plugin.execute(this)
-      console.log(plugin.name+': '+HahnrichClient[plugin.name])
+      if(HahnrichClient[plugin.name]) {
+        console.log(plugin.name, 'started!')
+      } else {
+        console.error('ERROR: Failed starting', plugin.name)
+      }
+      //console.log(plugin.name+': '+HahnrichClient[plugin.name])
     }
     // WebSocketServer
     const wsServer = new WebSocket.Server({ port: 8080 });

@@ -1,5 +1,6 @@
 module.exports = {
   name: 'discord-plugin',
+  color: '\u001b[38;5;63m',
   execute(Hahnrich) {
     const Discord = require('discord.js');
     const F = require('fs');
@@ -32,7 +33,7 @@ module.exports = {
 
     client.on('ready', () => {
       getCommands()
-      console.log(`Logged in as ${client.user.tag}`)
+      console.discord(`Logged in as ${client.user.tag}`)
       client.user.setPresence({
         activity: {
           name: 'alleshusos.de',
@@ -46,7 +47,7 @@ module.exports = {
       client.guilds.cache.forEach(guild => {
         servers.push(guild)
       })
-      console.log(`Online on: ${servers.join(', ')}`)
+      console.discord(`Online on: ${servers.join(', ')}`)
     })
 
     client.on('message', (message) => {
@@ -55,7 +56,7 @@ module.exports = {
       } else {
         return
       }
-      console.log(command[0], Hahnrich.discord.commands)
+      console.discord(message.author.username+'#'+message.author.discriminator, 'tried to run', "'"+command.join(' ')+"'")
       switch(message.channel['type']) {
         case 'dm':
           if(typeof Hahnrich.commands.get(command[0]) !== "undefined" && !Hahnrich[command[0]]) {
@@ -64,13 +65,13 @@ module.exports = {
               args.unshift(Hahnrich)
               message.reply(Hahnrich.commands.get(command[1]).execute.apply(null, args))
             } catch(e) {
-              console.log(e)
+              console.discord(e)
             }
           } else if(typeof Hahnrich.discord.commands.get(command[0]) !== "undefined") {
             try {
               Hahnrich.discord.commands.get(command[0]).execute(client, message)
             } catch(e) {
-              console.log(e)
+              console.discord(e)
             }
           } else if(Object.keys(Hahnrich).includes(command[0]) && typeof Hahnrich[command[0]].commands.get(command[1]) !== "undefined") {
             let args = command.slice(2)
@@ -89,13 +90,13 @@ module.exports = {
               args.unshift(Hahnrich)
               message.reply(Hahnrich.commands.get(command[1]).execute.apply(null, args))
             } catch(e) {
-              console.log(e)
+              console.discord(e)
             }
           } else if(typeof Hahnrich.discord.commands.get(command[0]) !== "undefined") {
             try {
               Hahnrich.discord.commands.get(command[0]).execute(client, message)
             } catch(e) {
-              console.log(e)
+              console.discord(e)
             }
           } else if(Object.keys(Hahnrich).includes(command[0]) && typeof Hahnrich[command[0]].commands.get(command[1]) !== "undefined") {
             let args = command.slice(2)
@@ -104,7 +105,7 @@ module.exports = {
             message.reply(`Trying to run ${command[0]+' '+command[1]}`)
             Hahnrich[command[0]].commands.get(command[1]).execute.apply(null, args)
           } else {
-            console.log(message.channel)
+            console.discord(message.channel)
             message.reply('ERROR: No command called '+command[0]+' found.')
           }
           break
@@ -112,6 +113,6 @@ module.exports = {
     })
 
     client.login(`${process.env.DISCORD_Token}`);
-    return 'connecting to discord'
+    return true
   }
 }

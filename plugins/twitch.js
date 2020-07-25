@@ -1,5 +1,6 @@
 module.exports = {
   name: 'twitch-plugin',
+  color: '\u001b[38;5;129m',
   execute(Hahnrich) {
     // dependencies
     const request = require('request');
@@ -10,8 +11,8 @@ module.exports = {
     Hahnrich.twitch.commands = new Map();
     // three steps to get to the token we want
     function get_user_code() {
-      console.log(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_ClientID}&redirect_uri=http://localhost&response_type=code&scope=${process.env.TWITCH_Scopes}`)
-      console.log('Please visit the previous link and add your client_id to the .env file')
+      console.twitch(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_ClientID}&redirect_uri=http://localhost&response_type=code&scope=${process.env.TWITCH_Scopes}`)
+      console.twitch('Please visit the previous link and add your client_id to the .env file')
     }
     function get_access_token() {
       var options = {
@@ -87,13 +88,13 @@ module.exports = {
                 args.unshift(Hahnrich)
                 client.whisper(user['display-name'], Hahnrich.commands.get(msg[1]).execute.apply(null, args))
               } catch(e) {
-                console.log(e)
+                console.twitch(e)
               }
             } else if(typeof Hahnrich.twitch.commands.get(msg[0]) !== "undefined") {
               try {
                 Hahnrich.twitch.commands.get(msg[0]).execute(client, channel, user, msg, self)
               } catch(e) {
-                console.log(e)
+                console.twitch(e)
               }
             } else {
               client.whisper(user['display-name'], 'ERROR: No command called '+msg[0]+' found.')
@@ -110,13 +111,13 @@ module.exports = {
                 args.unshift(Hahnrich)
                 client.action(channel, Hahnrich.commands.get(msg[1]).execute.apply(null, args))
               } catch(e) {
-                console.log(e)
+                console.twitch(e)
               }
             } else if(typeof Hahnrich.twitch.commands.get(msg[0]) !== "undefined") {
               try {
                 Hahnrich.twitch.commands.get(msg[0]).execute(client, channel, user, msg, self)
               } catch(e) {
-                console.log(e)
+                console.twitch(e)
               }
             } else {
               client.action(channel, 'ERROR: No command called '+msg[0]+' found.')
@@ -124,42 +125,42 @@ module.exports = {
         }
       })
       client.on('anongiftpaidupgrade', (channel, username, userstate) => {
-        console.log(username, 'is continuing the Gift Sub they got from an anonymous user on channel:', channel)
+        console.twitch(username, 'is continuing the Gift Sub they got from an anonymous user on channel:', channel)
       })
       client.on('ban', (channel, username, reason, userstate) => {
-        console.log(username, 'got banned on channel', channel, 'for:', reason)
+        console.twitch(username, 'got banned on channel', channel, 'for:', reason)
       })
       client.on('cheer', (channel, userstate, message) => {
-        console.log(userstate['display-name'], 'cheered', userstate.bits, 'on channel:', channel)
+        console.twitch(userstate['display-name'], 'cheered', userstate.bits, 'on channel:', channel)
       })
       client.on('clearchat', (channel) => {
-        console.log('Chat for channel', channel, 'got cleared')
+        console.twitch('Chat for channel', channel, 'got cleared')
       })
       client.on('disconnected', (reason) => {
-        //console.log('Got disconnected for reason:', reason, 'trying to reconnect...')
+        //console.twitch('Got disconnected for reason:', reason, 'trying to reconnect...')
         //bot(username, password)
       })
       client.on('emoteonly', (channel, enabled) => {
-        console.log('Emote-only', enabled, 'on channel', channel)
+        console.twitch('Emote-only', enabled, 'on channel', channel)
       })
       client.on('connected', () => {
-        console.log('Connected to Twitch!')
+        console.twitch('Connected to Twitch!')
         Hahnrich.twitch.client = client
       })
       client.on('emotesets', (sets, obj) => {
         // emotesets
       })
       client.on('followersonly', (channel, enabled, length) => {
-        console.log(length, 'Follower-only chat', enabled, 'on channel:', channel)
+        console.twitch(length, 'Follower-only chat', enabled, 'on channel:', channel)
       })
       client.on('giftpaidupgrade', (channel, username, sender, userstate) => {
-        console.log(username, 'is continuing the gift sub they got from', sender, 'in channel:', channel)
+        console.twitch(username, 'is continuing the gift sub they got from', sender, 'in channel:', channel)
       })
       client.on('hosted', (channel, username, sender, userstate) => {
-        console.log(channel, 'got hosted by', username, 'for', viewers, 'viewers', 'isAutohost', autohost)
+        console.twitch(channel, 'got hosted by', username, 'for', viewers, 'viewers', 'isAutohost', autohost)
       })
       client.on('hosting', (channel, target, viewers) => {
-        console.log(channel, 'is now hosting', target, 'for', viewers, 'viewers')
+        console.twitch(channel, 'is now hosting', target, 'for', viewers, 'viewers')
       })
       client.on('join', (channel, target, viewers) => {
         // add to active_users array
@@ -168,45 +169,45 @@ module.exports = {
         // remove from active_users array
       })
       client.on('messagedeleted', (channel, username, deletdMessage, userstate) => {
-        console.log('message', deletdMessage, 'deleted in channel:', channel)
+        console.twitch('message', deletdMessage, 'deleted in channel:', channel)
       })
       client.on('mod', (channel, username) => {
         // triggers alot, might wanna leave this
       })
       client.on('notice', (channel, msgid, message) => {
-        console.log('RECEIVED NOTICE:', message, 'on channel', channel)
+        console.twitch('RECEIVED NOTICE:', message, 'on channel', channel)
         return `RECEIVED NOTICE: ${message}, on channel ${channel}`
       })
       client.on('raided', (channel, username, viewers) => {
-        console.log(channel, 'got raided by', username, 'for', viewers, 'viewers')
+        console.twitch(channel, 'got raided by', username, 'for', viewers, 'viewers')
       })
       client.on('resub', (channel, username, months, message, userstate, methods) => {
         if(userstate['msg-param-should-share-streak']) {
-          console.log(username, 'resubbed on channel', channel, 'for', streakMonths, 'straight. Total:', months)
+          console.twitch(username, 'resubbed on channel', channel, 'for', streakMonths, 'straight. Total:', months)
         } else {
-          console.log(username, 'resubbed on channel', channel, 'for a total of', months)
+          console.twitch(username, 'resubbed on channel', channel, 'for a total of', months)
         }
       })
       client.on('slowmode', (channel, enabled, length) => {
-        console.log(length, 'Slowmode-chat', enabled, 'on channel:', channel)
+        console.twitch(length, 'Slowmode-chat', enabled, 'on channel:', channel)
       })
       client.on('subgift', (channel, username, streakMonths, recipient, methods, userstate) => {
-        console.log(username, 'gifted a sub to', recipient, 'they have gifted a total of', userstate["msg-param-sender-count"], 'on this channel ('+channel+')')
+        console.twitch(username, 'gifted a sub to', recipient, 'they have gifted a total of', userstate["msg-param-sender-count"], 'on this channel ('+channel+')')
       })
       client.on('submysterygift', (channel, username, numbOfSubs, methods, userstate) => {
-        console.log(username, 'gifts', numbOfSubs, 'subs to chat! They have gifted a total of', userstate["msg-param-sender-count"], 'on this channel ('+channel+')')
+        console.twitch(username, 'gifts', numbOfSubs, 'subs to chat! They have gifted a total of', userstate["msg-param-sender-count"], 'on this channel ('+channel+')')
       })
       client.on('subscribers', (channel, enabled) => {
-        console.log('Sub-only chat', enabled, 'on channel:', channel)
+        console.twitch('Sub-only chat', enabled, 'on channel:', channel)
       })
       client.on('subscription', (channel, username, method, message, userstate) => {
-        console.log(username, 'subscribed with', method+'! On channel', channel)
+        console.twitch(username, 'subscribed with', method+'! On channel', channel)
       })
       client.on('timeout', (channel, username, reason, duration, userstate) => {
-        console.log('User', username, 'got timed out for', duration+'!', 'Reason:', reason, 'Channel:', channel)
+        console.twitch('User', username, 'got timed out for', duration+'!', 'Reason:', reason, 'Channel:', channel)
       })
       client.on('unhost', (channel, viewers) => {
-        console.log(channel, 'stopped hosting for', viewers)
+        console.twitch(channel, 'stopped hosting for', viewers)
       })
       client.connect()
       // error handler
@@ -217,7 +218,7 @@ module.exports = {
         if(errors[id]) {
           errors[id]
         } else {
-          console.log('ERROR: error not in errors map ('+id+')')
+          console.twitch('ERROR: error not in errors map ('+id+')')
         }
       }
     }
@@ -230,23 +231,24 @@ module.exports = {
         // try to read the previous tokens
         let token_obj = JSON.parse(F.readFileSync('./plugins/twitch/twitch_tokens.json'))
         // if the last access_token already expired, use the refresh_token and get a new one!
-        console.log(token_obj.time + token_obj.expires_in, '>', new Date().getTime(), token_valid(token_obj))
+        console.twitch('New token required?', token_valid(token_obj))
         if(token_valid(token_obj)) {
           bot('Hahnrich', token_obj.access_token)
-          return 'connecting to twitch'
+          return true
         } else {
           refresh_token(token_obj)
           read_token()
           if(typeof token_obj.access_token !== undefined) {
             bot('Hahnrich', token_obj.access_token)
-            return 'connecting to twitch'
+            return true
           } else {
-            console.log('ERROR: INVALID ACCESS_TOKEN PLEASE RESTART')
+            console.twitch('ERROR: INVALID ACCESS_TOKEN PLEASE RESTART')
+            return false
           }
         }
       } catch(e) {
         // create a twitch_tokens.json file if none exists
-        console.log(e)
+        console.twitch(e)
         if(e.toString().includes('no such file or directory')) {
           get_access_token()
         }

@@ -1,16 +1,24 @@
 const HahnrichClient = require('./Hahnrich.js');
 const shell = process.openStdin();
+let last_commands = []
 
 const Client = new HahnrichClient(6969)
 Client.init()
 
 shell.addListener("data", function(d) {
   const data = d.toString().trim().split(' ')
-  if(typeof Client.commands.get(data[0]) !== "undefined" && !Client[data[0]]) {
+  if(data[0] === 'clear' || data[0] === 'cls') {
+    console.clear()
+  } else if(typeof Client.commands.get(data[0]) !== "undefined" && !Client[data[0]]) {
     try {
       let args = data
       args.unshift(Client)
-      console.log(Client.commands.get(data[1]).execute.apply(null, args))
+      let command = Client.commands.get(data[1]).execute.apply(null, args)
+      if(command && !command.includes('ERROR')) {
+        console.log(command)
+      } else {
+        console.error(command)
+      }
     } catch(e) {
       console.log(e)
     }
@@ -18,8 +26,15 @@ shell.addListener("data", function(d) {
     let args = data.slice(2)
     args.unshift(Client[data[0]].client)
     args.splice(2, 0, 'CONSOLE')
-    console.log(Client[data[0]].commands.get(data[1]).execute.apply(null, args))
+    let plugin = Client[data[0]].commands.get(data[1]).execute.apply(null, args)
+    if(plugin) {
+      console.log(`'${data.join(' ')}'`, 'succeded!')
+    } else {
+      console.error('ERROR: Failed starting', `'${data.join(' ')}'`)
+    }
+    //console.log(Client[data[0]].commands.get(data[1]).execute.apply(null, args))
   } else {
     console.log('ERROR: No command called '+data.join(' ')+' found.')
   }
+  last_commands.push(data.join(' '))
 })

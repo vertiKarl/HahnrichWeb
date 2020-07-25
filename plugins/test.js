@@ -1,6 +1,7 @@
 module.exports = {
   name: 'test-plugin',
   execute() {
-    return 'test!'
+    console.test('test!')
+    return true
   }
 }

@@ -9,6 +9,7 @@ module.exports = {
       channel = channel.replace('#', '')
       client.commercial(channel, msg[1]).catch(e => {
         client.action(channel, `Couldn't start adbreak for channel ${channel}`)
+        return false
       })
     } else {
       return "ERROR: no channel specified"
