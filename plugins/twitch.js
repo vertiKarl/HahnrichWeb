@@ -99,29 +99,66 @@ module.exports = {
             } else {
               client.whisper(user['display-name'], 'ERROR: No command called '+msg[0]+' found.')
             }
+          break
           default:
             if(msg[0] === '!' && !self) {
               msg = msg.substr(1).split(' ')
             } else {
               return
             }
-            if(typeof Hahnrich.commands.get(msg[0]) !== "undefined" && !Hahnrich[msg[0]]) {
+            if(typeof Hahnrich.twitch.commands.get(msg[0]) !== "undefined") {
+             try {
+               Hahnrich.twitch.commands.get(msg[0]).execute(client, channel, user, msg, self)
+             } catch(e) {
+               console.twitch(e)
+             }
+            } else if(typeof Hahnrich.commands.get(msg[0]) !== "undefined" && !Hahnrich[msg[0]]) {
               try {
                 let args = msg
                 args.unshift(Hahnrich)
-                client.action(channel, Hahnrich.commands.get(msg[1]).execute.apply(null, args))
+                let ans = Hahnrich.commands.get(msg[1]).execute.apply(null, args)
+                if(ans && typeof ans === 'string') {
+                  client.action(channel, ans)
+                } else if(ans) {
+                  if(typeof ans === "object") {
+                    let answer = []
+                    for([key, value] of ans) {
+                      answer.push(key)
+                    }
+                    ans = answer.join(' ')
+                  }
+                  client.action(channel, `${ans.toString()}`)
+                } else {
+                  client.action(channel, 'ERROR: Failed starting', `'${msg.join(' ')}'`)
+                }
               } catch(e) {
                 console.twitch(e)
               }
-            } else if(typeof Hahnrich.twitch.commands.get(msg[0]) !== "undefined") {
-              try {
-                Hahnrich.twitch.commands.get(msg[0]).execute(client, channel, user, msg, self)
-              } catch(e) {
-                console.twitch(e)
+            } else if(Object.keys(Hahnrich).includes(msg[0]) && typeof Hahnrich[msg[0]].commands.get(msg[1]) !== "undefined") {
+              let args = msg.slice(1)
+              args.unshift(null)
+              args.unshift(Hahnrich)
+              args.splice(2, 0, 'CONSOLE')
+              client.action(channel, `Trying to run ${msg[0]+' '+msg[1]}`)
+              let ans = Hahnrich[msg[0]].commands.get(msg[1]).execute.apply(null, args)
+              if(ans && typeof ans === 'string') {
+                client.action(channel, ans)
+              } else if(ans) {
+                if(typeof ans === "object") {
+                  let answer = []
+                  for([key, value] of ans) {
+                    answer.push(key)
+                  }
+                  ans = answer.join(' ')
+                }
+                client.action(channel, `${ans.toString()}`)
+              } else {
+                client.action(channel, 'ERROR: Failed starting', `'${msg.join(' ')}'`)
               }
             } else {
               client.action(channel, 'ERROR: No command called '+msg[0]+' found.')
             }
+        break
         }
       })
       client.on('anongiftpaidupgrade', (channel, username, userstate) => {
