@@ -1,3 +1,3 @@
 # HahnrichWeb
-Third Iteration of my Hahnrich-Bot.
-Now with Plugin support, WebSocket and ExpressServers!
+Third iteration of my Hahnrich-Bot.
+Now with plugin support, WebSocket- and Express servers!
