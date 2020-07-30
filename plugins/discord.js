@@ -4,10 +4,15 @@ module.exports = {
   execute(Hahnrich) {
     const Discord = require('discord.js');
     const F = require('fs');
+    const dhl = require('postman-request');
     require('dotenv').config();
     const client = new Discord.Client();
+    const settings = JSON.parse(F.readFileSync('plugins/discord/settings.json'))
     Hahnrich.discord = new Object();
     Hahnrich.discord.commands = new Map();
+    Hahnrich.discord.now_playing = new Map();
+    Hahnrich.discord.client = client;
+    Hahnrich.discord.settings = settings;
 
     function getCommands() {
       const Files = F.readdirSync('./plugins/discord/commands').filter(file => file.endsWith('.js'))
@@ -53,15 +58,39 @@ module.exports = {
     client.on('message', (message) => {
       if(message.content[0] === '!' && !self(message.author) && inWhitelist(message.author.id)) {
         command = message.content.substr(1).toLowerCase().split(' ')
+      } else if(!self(message.author) && inWhitelist(message.author.id)) {
+        let att = message.attachments.first()
+        let att_split = att ? att.name.split('.') : undefined
+        if(att && att_split && att_split[att_split.length-1] === 'mp3') {
+          message.reply('trying to download...')
+          dhl.get(message.attachments.first().url)
+          .on('error', (err) => {
+            message.reply(err)
+          })
+          .pipe(F.createWriteStream(`plugins/discord/songs/${message.attachments.first().name}`))
+            .on('finish', () => {
+              Hahnrich.discord.commands.get('join').execute(Hahnrich, client, message, 'dm').then(con => {
+                const disp = con.play(`plugins/discord/songs/${message.attachments.first().name}`)
+                disp.on('finish', () => {
+                  require('../mediaplayer.js')(Hahnrich, con, null, true)
+                })
+              })
+            })
+        } else {
+          return
+          message.reply('Invalid format! (Please use .mp3 files)')
+        }
+        return
       } else {
         return
       }
       console.discord(message.author.username+'#'+message.author.discriminator, 'tried to run', "'"+command.join(' ')+"'")
       switch(message.channel['type']) {
         case 'dm':
+
           if(typeof Hahnrich.discord.commands.get(command[0]) !== "undefined") {
             try {
-              Hahnrich.discord.commands.get(command[0]).execute(Hahnrich, client, message)
+              Hahnrich.discord.commands.get(command[0]).execute(Hahnrich, client, message, 'dm')
             } catch(e) {
               console.discord(e)
             }
@@ -83,10 +112,10 @@ module.exports = {
             message.reply('ERROR: No command called '+command[0]+' found.')
           }
           break
-        case 'default':
+        default:
           if(typeof Hahnrich.discord.commands.get(command[0]) !== "undefined") {
             try {
-              Hahnrich.discord.commands.get(command[0]).execute(Hahnrich, client, message)
+              Hahnrich.discord.commands.get(command[0]).execute(Hahnrich, client, message, 'server')
             } catch(e) {
               console.discord(e)
             }

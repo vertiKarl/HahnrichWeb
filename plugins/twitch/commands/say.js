@@ -1,8 +1,8 @@
 module.exports = {
   name: 'say',
-  execute(client, channel, user, msg) {
+  execute(Hahnrich, client, channel, user, msg) {
     if(channel) {
-      if(user === "CONSOLE") {
+      if(channel === "CONSOLE") {
         let n = 0
         resp = ''
         while(n < arguments.length) {
@@ -13,7 +13,7 @@ module.exports = {
           }
           n++;
         }
-        client.say(channel, resp)
+        client.say(user, resp)
         return true
       } else {
         client.error(channel, user, 'no_permission')

@@ -1,10 +1,10 @@
 module.exports = {
   name: 'test',
-  execute(client, message) {
-    if(message && message.author) {
+  execute(Hahnrich, client, message, ...c) {
+    if(message[0] !== 'CONSOLE' && message.author) {
       message.reply(`User ${message.author} sent message ${message.content}`)
     } else {
-      return `User CONSOLE sent message ${message ? message.content : '(no message)'}`
+      return `User CONSOLE sent message ${c ? c.join(' ') : '(no message)'}`
     }
   }
 }

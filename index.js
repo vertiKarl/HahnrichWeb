@@ -24,17 +24,18 @@ shell.addListener("data", function(d) {
     }
   } else if(Object.keys(Client).includes(data[0]) && typeof Client[data[0]].commands.get(data[1]) !== "undefined") {
     let args = data.slice(2)
-    args.unshift(Client[data[0]].client)
+    args.unshift(Client)
+    args.splice(1, 0, Client[data[0]].client)
     args.splice(2, 0, 'CONSOLE')
     let plugin = Client[data[0]].commands.get(data[1]).execute.apply(null, args)
     if(plugin) {
-      console.log(`'${data.join(' ')}'`, 'succeded!')
+      console.log(`'${data.join(' ')}'`, 'succeded!', plugin)
     } else {
       console.error('ERROR: Failed starting', `'${data.join(' ')}'`)
     }
     //console.log(Client[data[0]].commands.get(data[1]).execute.apply(null, args))
   } else {
-    console.log('ERROR: No command called '+data.join(' ')+' found.')
+    console.error('ERROR: No command called '+data.join(' ')+' found.')
   }
   last_commands.push(data.join(' '))
 })

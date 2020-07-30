@@ -75,13 +75,14 @@ module.exports = {
       const client = new tmi.client(opts)
       // event handling
       client.on('message', (channel, user, msg, self) => {
+        if(msg[0] === '!' && !self) {
+          msg = msg.substr(1).split(' ')
+        } else {
+          return
+        }
+        console.twitch(user['display-name'], 'tried to run', "'"+msg.join(' ')+"'")
         switch(user['message-type']) {
           case "whisper":
-            if(msg[0] === '!' && !self) {
-              msg = msg.substr(1).split(' ')
-            } else {
-              return
-            }
             if(typeof Hahnrich.commands.get(msg[0]) !== "undefined" && !Hahnrich[msg[0]]) {
               try {
                 let args = msg
@@ -92,7 +93,7 @@ module.exports = {
               }
             } else if(typeof Hahnrich.twitch.commands.get(msg[0]) !== "undefined") {
               try {
-                Hahnrich.twitch.commands.get(msg[0]).execute(client, channel, user, msg, self)
+                Hahnrich.twitch.commands.get(msg[0]).execute(Hahnrich, client, channel, user, msg, self)
               } catch(e) {
                 console.twitch(e)
               }
@@ -101,14 +102,9 @@ module.exports = {
             }
           break
           default:
-            if(msg[0] === '!' && !self) {
-              msg = msg.substr(1).split(' ')
-            } else {
-              return
-            }
             if(typeof Hahnrich.twitch.commands.get(msg[0]) !== "undefined") {
              try {
-               Hahnrich.twitch.commands.get(msg[0]).execute(client, channel, user, msg, self)
+               Hahnrich.twitch.commands.get(msg[0]).execute(Hahnrich, client, channel, user, msg, self)
              } catch(e) {
                console.twitch(e)
              }
@@ -136,8 +132,8 @@ module.exports = {
               }
             } else if(Object.keys(Hahnrich).includes(msg[0]) && typeof Hahnrich[msg[0]].commands.get(msg[1]) !== "undefined") {
               let args = msg.slice(1)
-              args.unshift(null)
               args.unshift(Hahnrich)
+              args.splice(1, 0, Hahnrich[msg[0]].client)
               args.splice(2, 0, 'CONSOLE')
               client.action(channel, `Trying to run ${msg[0]+' '+msg[1]}`)
               let ans = Hahnrich[msg[0]].commands.get(msg[1]).execute.apply(null, args)
