@@ -9,6 +9,7 @@ module.exports = {
     require('dotenv').config();
     Hahnrich.twitch = new Object();
     Hahnrich.twitch.commands = new Map();
+    Hahnrich.twitch.functions = {}
     // three steps to get to the token we want
     function get_user_code() {
       console.twitch(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_ClientID}&redirect_uri=http://localhost&response_type=code&scope=${process.env.TWITCH_Scopes}`)
@@ -28,7 +29,7 @@ module.exports = {
         F.writeFileSync('./plugins/twitch/twitch_tokens.json', JSON.stringify(resp, null, 4));
       });
     }
-    function refresh_token(token_obj) {
+    Hahnrich.twitch.functions['refresh_token'] = function refresh_token(token_obj) {
       var options = {
                       'method': 'POST',
                       'url': `https://id.twitch.tv/oauth2/token?client_id=${process.env.TWITCH_ClientID}&client_secret=${process.env.TWITCH_Secret}&refresh_token=${token_obj.refresh_token}&grant_type=refresh_token`,
@@ -49,10 +50,10 @@ module.exports = {
         Hahnrich.twitch.commands.set(com.name, com)
       }
     }
-    function token_valid(token_obj) {
+    Hahnrich.twitch.functions['token_valid'] = function token_valid(token_obj) {
       return (token_obj.time + token_obj.expires_in) > new Date().getTime()
     }
-    function read_token() {
+    Hahnrich.twitch.functions['read_token'] = function read_token() {
       return JSON.parse(F.readFileSync('./plugins/twitch/twitch_tokens.json'))
     }
     function bot(username, password) {
@@ -264,13 +265,13 @@ module.exports = {
         // try to read the previous tokens
         let token_obj = JSON.parse(F.readFileSync('./plugins/twitch/twitch_tokens.json'))
         // if the last access_token already expired, use the refresh_token and get a new one!
-        console.twitch('New token required?', token_valid(token_obj))
-        if(token_valid(token_obj)) {
+        console.twitch('New token required?', Hahnrich.twitch.functions.token_valid(token_obj))
+        if(Hahnrich.twitch.functions.token_valid(token_obj)) {
           bot('Hahnrich', token_obj.access_token)
           return true
         } else {
-          refresh_token(token_obj)
-          read_token()
+          Hahnrich.twitch.functions.refresh_token(token_obj)
+          Hahnrich.twitch.functions.read_token()
           if(typeof token_obj.access_token !== undefined) {
             bot('Hahnrich', token_obj.access_token)
             return true
