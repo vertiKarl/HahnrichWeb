@@ -11,7 +11,7 @@ module.exports = {
         break
       case 'server':
         console.debug(message.author.id)
-        if(message.author.id === '175642620767371265' && message.content.includes('https://clips.twitch.tv/')) {
+        if(message.content.includes('https://clips.twitch.tv/')) {
           let token_obj = Hahnrich.twitch.functions.read_token()
           if(Hahnrich.twitch.functions.token_valid(token_obj)) {
             require('dotenv').config();
@@ -35,7 +35,7 @@ module.exports = {
             });
           }
         } else {
-          message.reply('No permission or invalid link')
+          message.reply('invalid link')
         }
         break
       default:
