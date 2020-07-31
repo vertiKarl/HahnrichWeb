@@ -10,6 +10,7 @@ module.exports = {
     Hahnrich.twitch = new Object();
     Hahnrich.twitch.commands = new Map();
     Hahnrich.twitch.functions = {}
+    Hahnrich.twitch.active_users = new Map();
     // three steps to get to the token we want
     function get_user_code() {
       console.twitch(`https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_ClientID}&redirect_uri=http://localhost&response_type=code&scope=${process.env.TWITCH_Scopes}`)
@@ -55,6 +56,14 @@ module.exports = {
     }
     Hahnrich.twitch.functions['read_token'] = function read_token() {
       return JSON.parse(F.readFileSync('./plugins/twitch/twitch_tokens.json'))
+    }
+    function inBlacklist(username) {
+      let blacklist = F.readFileSync('plugins/twitch/blacklist.txt').toString().split('\n')
+      if(blacklist.indexOf(username) >= 0) {
+        return true
+      } else {
+        return false
+      }
     }
     function bot(username, password) {
       // otherwise run twitch client
@@ -196,11 +205,49 @@ module.exports = {
       client.on('hosting', (channel, target, viewers) => {
         console.twitch(channel, 'is now hosting', target, 'for', viewers, 'viewers')
       })
-      client.on('join', (channel, target, viewers) => {
-        // add to active_users array
+      client.on('join', (channel, username, self) => {
+        if(inBlacklist(username.toLowerCase())) {return}
+        let user = {
+          'name': username,
+          'time': new Date().getTime()
+        }
+        let active_users = Hahnrich.twitch.active_users.get(channel)
+        if(active_users) {
+          active_users.push(user)
+        } else {
+          Hahnrich.twitch.active_users.set(channel, []).get(channel).push(user)
+        }
       })
       client.on('part', (channel, username, self) => {
-        // remove from active_users array
+        let active_users = Hahnrich.twitch.active_users.get(channel)
+        if(active_users) {
+          for(let u in active_users) {
+            if(active_users[u].name === username) {
+              let db = JSON.parse(F.readFileSync('plugins/twitch/users.json'))
+              let found = false
+              if(!db[channel]) {
+                db[channel] = []
+              }
+              for(db_u of db[channel]) {
+                if(db_u.name === username) {
+                  db_u.watchtime += new Date().getTime() - active_users[u].time
+                  F.writeFileSync('plugins/twitch/users.json', JSON.stringify(db, null, 4))
+                  found = true
+                  break
+                }
+              }
+              if(!found) {
+                let user = {
+                  "name": username,
+                  "watchtime": new Date().getTime() - active_users[u].time
+                }
+                db[channel].push(user)
+                F.writeFileSync('plugins/twitch/users.json', JSON.stringify(db, null, 4))
+              }
+              active_users.splice(u, 1)
+            }
+          }
+        }
       })
       client.on('messagedeleted', (channel, username, deletdMessage, userstate) => {
         console.twitch('message', deletdMessage, 'deleted in channel:', channel)

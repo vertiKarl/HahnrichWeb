@@ -106,5 +106,6 @@ dist
 twitch_tokens.json
 channels.txt
 whitelist.txt
+blacklist.txt
 debug.js
 songs/
