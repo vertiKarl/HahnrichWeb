@@ -1,12 +1,13 @@
 module.exports = {
   name: 'say',
-  execute(Hahnrich, client, channel, user, msg) {
+  execute(Hahnrich, client, channel, user=null, msg=null, self=null) {
     if(channel) {
       if(channel === "CONSOLE") {
         let n = 0
         resp = ''
         while(n < arguments.length) {
-          if(n > 2 && n !== arguments.length-1) {
+          console.debug(resp)
+          if(n > 3 && n !== arguments.length-1) {
             resp += String(arguments[n]) + ' '
           } else if (n === arguments.length-1) {
             resp += String(arguments[n])
