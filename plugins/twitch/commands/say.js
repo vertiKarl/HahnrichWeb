@@ -6,7 +6,6 @@ module.exports = {
         let n = 0
         resp = ''
         while(n < arguments.length) {
-          console.debug(resp)
           if(n > 3 && n !== arguments.length-1) {
             resp += String(arguments[n]) + ' '
           } else if (n === arguments.length-1) {
