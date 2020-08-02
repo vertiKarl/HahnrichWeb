@@ -13,6 +13,9 @@ module.exports = {
         console.debug(message.author.id)
         if(message.content.includes('https://clips.twitch.tv/')) {
           let token_obj = Hahnrich.twitch.functions.read_token()
+          if(!Hahnrich.twitch.functions.token_valid(token_obj)) {
+            Hahnrich.twitch.functions.refresh_token(token_obj)
+          }
           if(Hahnrich.twitch.functions.token_valid(token_obj)) {
             require('dotenv').config();
             let clip_id = message.content.split(' ')[1].replace('https://clips.twitch.tv/', '')
