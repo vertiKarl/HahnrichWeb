@@ -72,7 +72,7 @@ module.exports = {
               Hahnrich.discord.commands.get('join').execute(Hahnrich, client, message, 'dm').then(con => {
                 const disp = con.play(`plugins/discord/songs/${message.attachments.first().name}`)
                 disp.on('finish', () => {
-                  require('../mediaplayer.js')(Hahnrich, con, null, true)
+                  require('./mediaplayer.js')(Hahnrich, con, null, true)
                 })
               })
             })
