@@ -71,6 +71,7 @@ module.exports = {
             .on('finish', () => {
               Hahnrich.discord.commands.get('join').execute(Hahnrich, client, message, 'dm').then(con => {
                 const disp = con.play(`plugins/discord/songs/${message.attachments.first().name}`)
+                Hahnrich.discord.now_playing.set(con.channel.guild.id, message.attachments.first().name)
                 disp.on('finish', () => {
                   require('./discord/mediaplayer.js')(Hahnrich, con, `plugins/discord/songs/${message.attachments.first().name}`, false)
                 })
