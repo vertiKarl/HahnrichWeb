@@ -60,8 +60,6 @@ module.exports = {
                 message.reply(`Successfully downloaded clip "${resp.title}" from channel ${resp.broadcaster_name}.\nYou can find it here: https://alleshusos.de/private/clips/${resp.id}.mp4`)
               })
             });
-          } else {
-            console.error('invalid token')
           }
         } else {
           message.reply('invalid link')
