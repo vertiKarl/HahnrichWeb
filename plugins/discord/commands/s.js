@@ -10,13 +10,37 @@ module.exports = {
         return
         break
       case 'server':
-        console.debug(message.author.id)
         if(message.content.includes('https://clips.twitch.tv/')) {
+          console.debug('valid link')
           let token_obj = Hahnrich.twitch.functions.read_token()
           if(!Hahnrich.twitch.functions.token_valid(token_obj)) {
-            Hahnrich.twitch.functions.refresh_token(token_obj)
-          }
-          if(Hahnrich.twitch.functions.token_valid(token_obj)) {
+            console.debug('invalid token, refreshing...')
+            Hahnrich.twitch.functions.refresh_token(token_obj, () => {
+              token_obj = Hahnrich.twitch.functions.read_token()
+              console.debug(Hahnrich.twitch.functions.token_valid(token_obj))
+              console.debug('valid token, continuing')
+              require('dotenv').config();
+              let clip_id = message.content.split(' ')[1].replace('https://clips.twitch.tv/', '')
+              var options = {
+                              'method': 'GET',
+                              'url': `https://api.twitch.tv/helix/clips?id=${clip_id}`,
+                              'headers': {
+                                'Authorization': `Bearer ${token_obj.access_token}`,
+                                'Client-ID': process.env.TWITCH_ClientID
+                              }
+                            };
+              request(options, function (error, response) {
+                if (error) throw new Error(error);
+                resp = JSON.parse(response.body).data[0];
+                let link = resp.thumbnail_url.split('-preview')[0]+'.mp4'
+                dhl.get(link).pipe(F.createWriteStream(`../alleshusos.de/private/clips/${resp.id}.mp4`)).on('finish', () => {
+                  F.writeFileSync(`../alleshusos.de/private/clips/${resp.id}.json`, JSON.stringify(resp, null, 4))
+                  message.reply(`Successfully downloaded clip "${resp.title}" from channel ${resp.broadcaster_name}.\nYou can find it here: https://alleshusos.de/private/clips/${resp.id}.mp4`)
+                })
+              });
+            })
+          } else {
+            console.debug('valid token, continuing')
             require('dotenv').config();
             let clip_id = message.content.split(' ')[1].replace('https://clips.twitch.tv/', '')
             var options = {
@@ -36,6 +60,8 @@ module.exports = {
                 message.reply(`Successfully downloaded clip "${resp.title}" from channel ${resp.broadcaster_name}.\nYou can find it here: https://alleshusos.de/private/clips/${resp.id}.mp4`)
               })
             });
+          } else {
+            console.error('invalid token')
           }
         } else {
           message.reply('invalid link')
