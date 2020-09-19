@@ -15,7 +15,7 @@ module.exports = {
         let choice = files[Math.floor(Math.random() * files.length)]
         Hahnrich.discord.now_playing.set(jstate.channel.guild.id, choice)
         let dispatcher = jstate.play(`plugins/discord/songs/${choice}`)
-        dispatcher.on('finish', () => {
+        dispatcher.on('finish', (jstate) => {
           require('../mediaplayer.js')(Hahnrich, jstate, `plugins/discord/songs/${choice}`)
         })
       })
